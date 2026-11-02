@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>骑行路线详情</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #f5f6fa;
+    display: flex;
+    height: 100vh;
+  }
+  .map-side { flex: 1; position: relative; }
+  #map { width: 100%; height: 100%; }
+  .back-btn {
+    position: absolute; top: 16px; left: 16px;
+    padding: 10px 16px; background: #fff; border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15); z-index: 10;
+    color: #667eea; font-weight: 600; text-decoration: none; font-size: 14px;
+  }
+  .info-side {
+    width: 420px; background: #fff; overflow-y: auto;
+    padding: 28px; box-shadow: -4px 0 16px rgba(0,0,0,0.05);
+  }
+  .info-side h1 { font-size: 22px; color: #333; margin-bottom: 12px; }
+  .meta {
+    display: flex; gap: 16px; color: #667eea; font-weight: 600;
+    font-size: 14px; margin-bottom: 20px; padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+  }
+  .section { margin-bottom: 28px; }
+  .section h2 {
+    font-size: 16px; color: #333; margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section h2::before {
+    content: ''; width: 4px; height: 16px;
+    background: #667eea; border-radius: 2px;
+  }
+  .directions { list-style: none; counter-reset: step; }
+  .directions li {
+    counter-increment: step; position: relative;
+    padding-left: 40px; padding-bottom: 18px;
+    color: #555; font-size: 14px; line-height: 1.6;
+  }
+  .directions li::before {
+    content: counter(step); position: absolute;
+    left: 0; top: 0; width: 26px; height: 26px;
+    background: #667eea; color: #fff; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 600;
+  }
+  .directions li:not(:last-child)::after {
+    content: ''; position: absolute;
+    left: 12px; top: 30px; bottom: 4px;
+    width: 2px; background: #e0e5ff;
+  }
+  .poi-list { display: flex; flex-direction: column; gap: 10px; }
+  .poi {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px; background: #f8f9ff;
+    border-radius: 10px; font-size: 14px;
+    cursor: pointer; transition: background 0.2s;
+  }
+  .poi:hover { background: #eef1ff; }
+  .poi-icon {
+    width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+  .poi-icon.奶茶 { background: #ffe4e6; }
+  .poi-icon.面包 { background: #fef3c7; }
+  .poi-icon.休息 { background: #dbeafe; }
+  .poi-icon.拍照 { background: #d1fae5; }
+  .poi-icon.咖啡店 { background: #e0e7ff; }
+  .poi-icon.便利店 { background: #fef9c3; }
+  .poi-icon.餐厅 { background: #fce7f3; }
+  .poi-name { flex: 1; color: #333; font-weight: 500; }
+  .poi-type {
+    font-size: 12px; color: #888; background: #fff;
+    padding: 4px 10px; border-radius: 12px;
+  }
+  .tips {
+    background: #fffbe6; border-left: 3px solid #fda085;
+    padding: 14px 16px; border-radius: 6px;
+    font-size: 13px; color: #8a6d3b; line-height: 1.6;
+  }
+  @media (max-width: 900px) {
+    body { flex-direction: column; }
+    .map-side { flex: none; height: 50vh; }
+    .info-side { width: 100%; flex: 1; }
+  }
+</style>
+</head>
+<body>
+
+<div class="map-side">
+  <a href="index.html" class="back-btn">← 返回</a>
+  <div id="map"></div>
+</div>
+
+<div class="info-side" id="infoSide">
+  <h1>加载中...</h1>
+</div>
+
+<script src="https://webapi.amap.com/maps?v=2.0&key=783c5d41b784c7de513c9ce25c1db78d"></script>
+<script src="data.js"></script>
+<script>
+window.addEventListener("load", function () {
+  const infoSide = document.getElementById("infoSide");
+
+  const params = new URLSearchParams(location.search);
+  const routeId = parseInt(params.get("id"));
+
+  if (typeof routes === "undefined") {
+    infoSide.innerHTML = "<h1>路线数据未加载</h1>";
+    return;
+  }
+
+  const route = routes.find(function (r) { return r.id === routeId; });
+  if (!route) {
+    infoSide.innerHTML = "<h1>找不到该路线</h1>";
+    return;
+  }
+
+  // 渲染右侧信息栏
+  let html = "<h1>" + route.name + "</h1>";
+  html += '<div class="meta">';
+  html += "<span>🚴 " + route.distance + " km</span>";
+  html += "<span>⏱ 约 " + route.duration + " 分钟</span>";
+  html += "<span>" + route.difficulty + "</span>";
+  html += "</div>";
+
+  html += '<div class="section">';
+  html += "<h2>骑行路线</h2>";
+  html += '<ol class="directions">';
+  route.directions.forEach(function (d) {
+    html += "<li>" + d + "</li>";
+  });
+  html += "</ol>";
+  html += "</div>";
+
+  html += '<div class="section">';
+  html += "<h2>沿途推荐</h2>";
+  html += '<div class="poi-list">';
+
+  const iconMap = { "奶茶": "🧋", "面包": "🥐", "休息": "🪑", "拍照": "📷", "咖啡店": "☕", "便利店": "🏪", "餐厅": "🍽️" };
+
+  route.pois.forEach(function (p, idx) {
+    html += '<div class="poi" data-idx="' + idx + '">';
+    html += '<div class="poi-icon ' + p.type + '">' + (iconMap[p.type] || "📍") + "</div>";
+    html += '<div class="poi-name">' + p.name + "</div>";
+    html += '<div class="poi-type">' + p.type + "</div>";
+    html += "</div>";
+  });
+
+  html += "</div>";
+  html += "</div>";
+
+  html += '<div class="section">';
+  html += "<h2>骑行建议</h2>";
+  html += '<div class="tips">💡 ' + route.tips + "</div>";
+  html += "</div>";
+
+  infoSide.innerHTML = html;
+
+  // 初始化地图
+  const map = new AMap.Map("map", {
+    zoom: 12,
+    center: [route.waypoints[0].lng, route.waypoints[0].lat]
+  });
+
+  const path = route.waypoints.map(function (w) { return [w.lng, w.lat]; });
+
+  const polyline = new AMap.Polyline({
+    path: path,
+    strokeColor: "#667eea",
+    strokeWeight: 6,
+    strokeOpacity: 0.9,
+    lineJoin: "round",
+    lineCap: "round"
+  });
+  map.add(polyline);
+
+  // 起点标记
+  new AMap.Marker({
+    position: path[0],
+    content: '<div style="background:#4ade80;color:#fff;padding:4px 10px;border-radius:20px;font-size:13px;white-space:nowrap;">起点</div>',
+    offset: new AMap.Pixel(-20, -10)
+  }).setMap(map);
+
+  // 终点标记
+  new AMap.Marker({
+    position: path[path.length - 1],
+    content: '<div style="background:#ef4444;color:#fff;padding:4px 10px;border-radius:20px;font-size:13px;white-space:nowrap;">终点</div>',
+    offset: new AMap.Pixel(-20, -10)
+  }).setMap(map);
+
+  // POI 标记
+  const poiColors = {
+    "奶茶": "#f472b6",
+    "面包": "#fbbf24",
+    "休息": "#60a5fa",
+    "拍照": "#34d399",
+    "咖啡店": "#818cf8",
+    "便利店": "#facc15",
+    "餐厅": "#f472b6"
+  };
+
+  route.pois.forEach(function (p) {
+    new AMap.Marker({
+      position: [p.lng, p.lat],
+      content: '<div style="background:' + (poiColors[p.type] || "#999") + ';color:#fff;padding:4px 8px;border-radius:12px;font-size:12px;white-space:nowrap;">' + p.name + '</div>',
+      offset: new AMap.Pixel(-20, -10)
+    }).setMap(map);
+  });
+
+  // 点击右侧 POI，地图跳过去
+  document.querySelectorAll(".poi").forEach(function (el) {
+    el.addEventListener("click", function () {
+      const idx = parseInt(this.dataset.idx);
+      const p = route.pois[idx];
+      map.setZoomAndCenter(16, [p.lng, p.lat]);
+    });
+  });
+
+  // 自动缩放到包含全部点
+  map.setFitView();
+});
+</script>
+
+</body>
+</html>

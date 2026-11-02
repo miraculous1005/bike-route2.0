@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>北航骑行路线推荐</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+  <div class="header-decoration">
+    <span class="deco-icon">🚴‍♂️</span>
+    <span class="deco-icon">🌤️</span>
+    <span class="deco-icon">🗺️</span>
+  </div>
+  
+  <h1>北航骑行路线推荐</h1>
+  <p class="subtitle">根据你的偏好和当日天气，为你推荐合适的骑行路线</p>
+
+  <!-- 天气板块 -->
+  <div class="weather-section" id="weatherSection">
+    <div class="weather-loading">
+      <div class="spinner"></div>
+      <p>正在获取天气信息...</p>
+    </div>
+  </div>
+
+  <form id="routeForm">
+    <div class="form-group">
+      <label>所在校区</label>
+      <div class="radio-group">
+        <label><input type="radio" name="campus" value="学院路" checked> <span>学院路校区</span></label>
+        <label><input type="radio" name="campus" value="沙河"> <span>沙河校区</span></label>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>持续时间（分钟）</label>
+      <input type="range" id="duration" min="30" max="360" value="90" step="10">
+      <span id="durationVal">90 分钟</span>
+    </div>
+
+    <div class="form-group">
+      <label for="pace">平均配速</label>
+      <select id="pace">
+        <option value="休闲">🚲 休闲（12 km/h）</option>
+        <option value="适中" selected>🚴 适中（18 km/h）</option>
+        <option value="较快">🚀 较快（25 km/h）</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>周边风景偏好（可多选）</label>
+      <div class="checkbox-group">
+        <label><input type="checkbox" name="scenery" value="自然风光"> <span>🌿 自然风光</span></label>
+        <label><input type="checkbox" name="scenery" value="城市街景"> <span>🏙️ 城市街景</span></label>
+        <label><input type="checkbox" name="scenery" value="历史人文"> <span>🏛️ 历史人文</span></label>
+        <label><input type="checkbox" name="scenery" value="河湖湿地"> <span>🌊 河湖湿地</span></label>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>沿途设施（可多选）</label>
+      <div class="checkbox-group">
+        <label><input type="checkbox" name="shops" value="便利店"> <span>🏪 便利店</span></label>
+        <label><input type="checkbox" name="shops" value="咖啡店"> <span>☕ 咖啡店</span></label>
+        <label><input type="checkbox" name="shops" value="餐厅"> <span>🍽️ 餐厅</span></label>
+        <label><input type="checkbox" name="shops" value="奶茶店"> <span>🧋 奶茶店</span></label>
+        <label><input type="checkbox" name="shops" value="面包店"> <span>🥐 面包店</span></label>
+      </div>
+    </div>
+
+    <button type="submit" class="submit-btn">
+      <span>✨ 推荐路线</span>
+    </button>
+  </form>
+</div>
+
+<script src="data.js"></script>
+<script src="weather.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
